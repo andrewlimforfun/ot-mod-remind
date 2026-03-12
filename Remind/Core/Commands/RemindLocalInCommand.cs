@@ -41,7 +41,7 @@ namespace Remind.Core.Commands
                 return;
             }
             ChatUtils.AddGlobalNotification($"[{CMD}] Reminder in {timePart}: \"{message}\"");
-            ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, $"{username} in {timePart}: ", Islocal: true);
+            ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, $"in {timePart} with '{message}'", Islocal: true);
         }
     }
 }
