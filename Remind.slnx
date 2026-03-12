@@ -1,0 +1,13 @@
+﻿<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="Install" /> 
+  </Configurations>
+  <Project Name="Remind" Path="Remind\Remind.csproj" Active="true" />
+  <!-- <Project Name="RemindChatLog" Path="RemindChatLog\RemindChatLog.csproj" />
+  <Project Name="RemindWebSocket" Path="RemindWebSocket\RemindWebSocket.csproj" />
+  <Project Name="RemindTelegram" Path="RemindTelegram\RemindTelegram.csproj" /> -->
+</Solution>

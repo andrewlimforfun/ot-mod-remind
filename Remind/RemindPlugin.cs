@@ -1,0 +1,86 @@
+﻿
+using System;
+using System.Collections.Concurrent;
+using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using Remind.Core;
+using Remind.Core.Commands;
+using Remind.Core.Util;
+using Remind.Patches;
+using HarmonyLib;
+using UnityEngine;
+
+
+namespace Remind
+{
+    [BepInPlugin(RemindPlugin.ModGUID, RemindPlugin.ModName, RemindPlugin.ModVersion)]
+    public class RemindPlugin : BaseUnityPlugin
+    {
+        public const int OriginalNotificationLimit = 99;
+        public const int DefaultNotificationLimit = 300;
+        public const int MaxNotificationLimit = 999;
+        public const int DefaultChatSinkLocalRange = 5;
+        public const int DefaultGlobalChatMessageLimit = 50;
+        public const int DefaultLocalChatMessageLimit = 25;
+        public static ConfigEntry<bool>? EnableFeature { get; private set; }
+        public static ConfigEntry<bool>? ShowCommand { get; private set; }
+        public static ChatCommandManager? CommandManager { get; private set; }
+        public static ScheduledTaskManager? ScheduledTaskManager { get; private set; }
+
+        // Thread-safe queue to marshal background-thread work onto the Unity main thread
+        private static readonly ConcurrentQueue<Action> _mainThreadQueue = new ConcurrentQueue<Action>();
+
+        /// <summary>Schedules an action to run on the Unity main thread on the next Update tick.</summary>
+        public static void RunOnMainThread(Action action) => _mainThreadQueue.Enqueue(action);
+
+        public const string ModGUID = "com.andrewlin.ontogether.remind";
+        public const string ModName = "Remind";
+        public const string ModVersion = BuildInfo.Version;
+
+        /// <summary>
+        /// Called once when the game starts. Use it to initialize config, set up Harmony patches, initialize resources, etc.
+        /// </summary>
+        void Awake()
+        {
+            // This runs once when the game starts
+            Logger.LogInfo($"{ModName} v{ModVersion} is loaded!");
+
+            InitConfig();
+
+            // Apply Harmony patches
+            var harmony = new Harmony(ModGUID);
+            harmony.PatchAll(typeof(TextChannelManagerPatch));
+
+            // Initialize command processor with all commands found via reflection
+            CommandManager = new ChatCommandManager();
+
+            Logger.LogInfo($"Player ID: {PlayerUtils.GetPlayerId()}");
+            Logger.LogInfo($"Steam Player ID: {PlayerUtils.GetSteamPlayerIdString()}");
+
+            // Initialize the task scheduler
+            ScheduledTaskManager = new ScheduledTaskManager();
+        }
+
+        void InitConfig()
+        {
+            // Initialize config entries
+            EnableFeature = Config.Bind("General", "EnableFeature", true, "Enable or disable the mod feature.");
+            ShowCommand = Config.Bind("General", "ShowCommand", false, "Show the command in chat when used.");
+        }
+
+        /// <summary> Called every frame by Unity. We use it to execute actions on the main thread that were scheduled from background threads (e.g. WebSocket message handlers).</summary>
+        void Update()
+        {
+            // Drain the main thread queue each frame
+            while (_mainThreadQueue.TryDequeue(out Action action))
+            {
+                try { action(); }
+                catch (Exception ex) { Logger.LogError($"Main thread action failed: {ex.Message}"); }
+            }
+        }
+
+        /// <summary> Called when the plugin is unloaded or the game exits. Clean up resources here.</summary>
+        void OnDestroy() { }
+    }
+}
