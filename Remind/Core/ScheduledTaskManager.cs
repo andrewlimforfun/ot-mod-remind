@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Xml;
 using BepInEx.Logging;
 
 namespace Remind.Core
@@ -39,20 +40,37 @@ namespace Remind.Core
 
         /// <summary>
         /// Tries to schedule <paramref name="action"/> to run after a delay parsed from <paramref name="delay"/>.
-        /// Accepts formats like "1:30:00", "0:05:00", or any value accepted by <see cref="TimeSpan.TryParse(string, out TimeSpan)"/>.
+        /// Tries ISO 8601 duration first (e.g. "1h30m", "15s", "PT1H30M"), then falls back to <see cref="TimeSpan.TryParse"/> (e.g. "1:30:00").
+        /// "PT" prefix is added automatically if missing; input is case-insensitive.
         /// Returns <c>false</c> and sets <paramref name="error"/> if the string cannot be parsed or is not positive.
         /// </summary>
         public bool TryScheduleIn(string delay, Action action, out ScheduledTask? task, out string error)
         {
-            if (!TimeSpan.TryParse(delay, out TimeSpan ts) || ts <= TimeSpan.Zero)
+            if (TryParseDelay(delay, out TimeSpan ts) && ts > TimeSpan.Zero)
             {
-                task = null;
-                error = $"Invalid duration: '{delay}'. Use hh:mm:ss, mm:ss, etc.";
-                return false;
+                task = ScheduleIn(ts, action);
+                error = "";
+                return true;
             }
-            task = ScheduleIn(ts, action);
-            error = "";
-            return true;
+            task = null;
+            error = $"Invalid duration: '{delay}'. Use ISO 8601 (1h30m, 15s, PT1H30M) or hh:mm:ss.";
+            return false;
+        }
+
+        private static bool TryParseDelay(string input, out TimeSpan result)
+        {
+            // Try ISO 8601: attach PT prefix if not already present (case-insensitive)
+            string upper = input.ToUpperInvariant();
+            string iso = upper.StartsWith("P") ? upper : "PT" + upper;
+            try
+            {
+                result = XmlConvert.ToTimeSpan(iso);
+                return true;
+            }
+            catch { }
+
+            // Fall back to TimeSpan.TryParse (hh:mm:ss, mm:ss, etc.)
+            return TimeSpan.TryParse(input, out result);
         }
 
         /// <summary>Schedule <paramref name="action"/> to run at a specific UTC instant.</summary>

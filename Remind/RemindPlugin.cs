@@ -32,7 +32,10 @@ namespace Remind
         private static readonly ConcurrentQueue<Action> _mainThreadQueue = new ConcurrentQueue<Action>();
 
         /// <summary>Schedules an action to run on the Unity main thread on the next Update tick.</summary>
-        public static void RunOnMainThread(Action action) => _mainThreadQueue.Enqueue(action);
+        public static void RunOnMainThread(Action action)
+        {
+            if (EnableFeature?.Value == true) _mainThreadQueue.Enqueue(action);
+        }
 
         public const string ModGUID = "com.andrewlin.ontogether.remind";
         public const string ModName = "Remind";
@@ -55,9 +58,6 @@ namespace Remind
             // Initialize command processor with all commands found via reflection
             CommandManager = new ChatCommandManager();
 
-            Logger.LogInfo($"Player ID: {PlayerUtils.GetPlayerId()}");
-            Logger.LogInfo($"Steam Player ID: {PlayerUtils.GetSteamPlayerIdString()}");
-
             // Initialize the task scheduler
             ScheduledTaskManager = new ScheduledTaskManager();
         }
@@ -72,12 +72,19 @@ namespace Remind
         /// <summary> Called every frame by Unity. We use it to execute actions on the main thread that were scheduled from background threads (e.g. WebSocket message handlers).</summary>
         void Update()
         {
+            if (EnableFeature?.Value != true)
+            {
+                return;
+            }
+
             // Drain the main thread queue each frame
             while (_mainThreadQueue.TryDequeue(out Action action))
             {
                 try { action(); }
                 catch (Exception ex) { Logger.LogError($"Main thread action failed: {ex.Message}"); }
             }
+
+            ScheduledTaskManager?.Tick();
         }
 
         /// <summary> Called when the plugin is unloaded or the game exits. Clean up resources here.</summary>

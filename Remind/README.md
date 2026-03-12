@@ -10,24 +10,29 @@ Type any command into the in-game chat. Commands start with `/` and are **not se
 |---|---|---|
 | `/remindhelp` | `/rh` | List all available commands |
 | `/remindtoggle` | `/rt` | Toggle Remind on/off |
-| `/remindshowcommand` | `/esc` | Toggle showing commands in chat |
-| `/remindme` | `/rm` | Show a private notification after a delay or at a time |
-| `/remindlocal` | `/rl` | Send a local chat message after a delay or at a time |
-| `/remindglobal` | `/rg` | Send a global chat message after a delay or at a time |
+| `/remindshowcommand` | `/rsc` | Toggle showing commands in chat |
+| `/remindmein` | `/rmi` | Show a private notification after a delay |
+| `/remindmeat` | `/rma` | Show a private notification at a specific time |
+| `/remindlocalin` | `/rli` | Send a local chat message after a delay |
+| `/remindlocalat` | `/rla` | Send a local chat message at a specific time |
+| `/remindglobalin` | `/rgi` | Send a global chat message after a delay |
+| `/remindglobalat` | `/rga` | Send a global chat message at a specific time |
 
 ### Reminder Syntax
 
-All three reminder commands accept either `in` (relative delay) or `at` (absolute local time):
+`in` commands take a duration (`hh:mm:ss`), `at` commands take a local time (`HH:mm`):
 
 ```
-/remindme in 0:05:00 Take a break
-/rm at 14:45 Stand-up meeting
+/remindmein 1h30m Take a break
+/remindmein 0:05:00 Take a break
+/remindmeat 14:45 Stand-up meeting
 
-/remindlocal in 1:00:00 One hour left!
-/rl at 20:00 Game night starts
+/remindlocalin 1:00:00 One hour left!
+/remindlocalin 45s Quiz ends!
+/remindlocalat 20:00 Game night starts
 
-/remindglobal in 0:30:00 Checkpoint in 30 minutes
-/rg at 15:00 Boss fight time
+/remindglobalin 0:30:00 Checkpoint in 30 minutes
+/remindglobalat 15:00 Boss fight time
 ```
 
 ## Configuration

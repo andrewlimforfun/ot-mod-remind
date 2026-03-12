@@ -15,72 +15,20 @@ namespace Remind.Patches
     public class TextChannelManagerPatch
     {
         const int _selfDistance = 0;
-        
-        [HarmonyPatch("AddNotification", typeof(string))]
-        [HarmonyPostfix]
-        public static void AddNotificationPostfix(string text)
-        {
-            if (RemindPlugin.EnableFeature?.Value == false) return;
 
-            _ = Task.Run(async () =>
-            {
-                // always clean text because notifications contain usernames
-                string cleanText = ChatUtils.CleanTMPTags(text);
-            });
-        }
+        // [HarmonyPatch("AddNotification", typeof(string))]
+        // [HarmonyPostfix]
+        // public static void AddNotificationPostfix(string text)
+        // {
+        // }
 
-        [HarmonyPatch("SendMessageAsync", typeof(byte[]), typeof(byte[]), typeof(bool), typeof(Vector3), typeof(string), typeof(RPCInfo))]
-        [HarmonyPostfix]
-        public static void SendMessageAsyncPostfix(byte[] textBytes, byte[] userName, bool isLocal, Vector3 pos, string playerID, RPCInfo info = default(RPCInfo))
-        {
-            if (RemindPlugin.EnableFeature?.Value == false) return;
+        // [HarmonyPatch("SendMessageAsync", typeof(byte[]), typeof(byte[]), typeof(bool), typeof(Vector3), typeof(string), typeof(RPCInfo))]
+        // [HarmonyPostfix]
+        // public static void SendMessageAsyncPostfix(byte[] textBytes, byte[] userName, bool isLocal, Vector3 pos, string playerID, RPCInfo info = default(RPCInfo)) { }
 
-            _ = Task.Run(async () =>
-            {
-                string channel = isLocal ? "Local" : "Global";
-                // always clean username - hard to read otherwise
-                string cleanUserName = ChatUtils.CleanTMPTags(Encoding.Unicode.GetString(userName));
-                string rawMessage = Encoding.Unicode.GetString(textBytes);
-                string cleanMessage = RemindPlugin.CleanChatSinkTags?.Value == true
-                    ? ChatUtils.CleanTMPTags(rawMessage)
-                    : rawMessage;
-
-            });
-        }
-
-        [HarmonyPatch("OnChannelMessageReceived", typeof(string), typeof(string), typeof(Vector3), typeof(bool), typeof(int), typeof(string))]
-        [HarmonyPostfix]
-        public static void OnChannelMessageReceivedPostfix(string userName, string message, Vector3 senderPosition, bool isLocal, int senderIndex, string playerID)
-        {
-            if (RemindPlugin.EnableFeature?.Value == false) return;
-
-            if (MonoSingleton<DataManager>.I.BanData.IgnorePlayers.Contains(playerID)) return;
-            if (MonoSingleton<DataManager>.I.BanData.MutedPlayers.Contains(playerID)) return;
-
-            if (PlayerUtils.GetSteamPlayerIdString() == playerID) return;
-
-            // fire-and-forget task to avoid hitching the main thread with file IO / WebSocket work
-            _ = Task.Run(async () =>
-            {
-                // filter by distance for local messages and include it in the channel label
-                string channel = isLocal ? "Local" : "Global";
-
-                int? distance = null;
-                if (isLocal)
-                {
-                    distance = (int) Vector3.Distance(senderPosition, NetworkSingleton<TextChannelManager>.I.MainPlayer.position);
-                    int localRange = RemindPlugin.ChatSinkLocalRange?.Value ?? RemindPlugin.DefaultChatSinkLocalRange;
-                    if (distance > localRange) return;
-                }
-
-                // always clean username - hard to read otherwise
-                string cleanUserName = ChatUtils.CleanTMPTags(userName);
-                string cleanMessage = RemindPlugin.CleanChatSinkTags?.Value == true
-                    ? ChatUtils.CleanTMPTags(message)
-                    : message;
-
-            });
-        }
+        // [HarmonyPatch("OnChannelMessageReceived", typeof(string), typeof(string), typeof(Vector3), typeof(bool), typeof(int), typeof(string))]
+        // [HarmonyPostfix]
+        // public static void OnChannelMessageReceivedPostfix(string userName, string message, Vector3 senderPosition, bool isLocal, int senderIndex, string playerID){}
 
         [HarmonyPatch("OnEnterPressed")]
         [HarmonyPrefix]
