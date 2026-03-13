@@ -20,7 +20,7 @@ Type any command into the in-game chat. Commands start with `/` and are **not se
 
 ### Reminder Syntax
 
-`in` commands take a duration (`hh:mm:ss`), `at` commands take a local time (`HH:mm`):
+`in` commands take a duration (timespan `hh:mm:ss` or ISO 8601 duration `nhnmns`), `at` commands take a local time (`HH:mm[:ss]`):
 
 ```
 /remindmein 1h30m Take a break

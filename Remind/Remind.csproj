@@ -6,7 +6,8 @@
     <AssemblyName>AndrewLin.Remind</AssemblyName>
     <PackageName>Remind</PackageName>
     <RootNamespace>Remind</RootNamespace>
-    <Description>Remind: A mod for On-Together with in-game utility commands including scheduled reminders (/remindme, /remindlocal, /remindglobal), configurable chat limits, and more. Use /remindhelp</Description>
+    <Description>Remind: A mod for On-Together with in-game utility commands including scheduled reminders 
+      (/remindmein, /remindlocalin, /remindglobalin), and more. Use /remindhelp</Description>
     <ZipOutputName>$(TeamName)-$(PackageName)-v$(Version).zip</ZipOutputName>
     <LocalInstallPath>$(LocalBepInExPluginPath)\$(TeamName)-$(PackageName)Dev\</LocalInstallPath>
   </PropertyGroup>
