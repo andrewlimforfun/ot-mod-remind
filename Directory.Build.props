@@ -4,7 +4,7 @@
       Bump this once to version all mods together.
       Individual projects can override by re-declaring <Version> after this import.
     -->
-        <Version>0.0.2</Version>
+        <Version>0.0.3</Version>
 
         <TeamName>AndrewLin</TeamName>
         <Website>https://github.com/andrewlimforfun/ot-mod-remind</Website>
