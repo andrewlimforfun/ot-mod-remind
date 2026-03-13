@@ -34,6 +34,7 @@ namespace Remind.Core.Commands
 
             string timePart = args[0];
             string username = PlayerUtils.GetUserName();
+            bool isLocal = false;
 
             if (!RemindPlugin.ScheduledTaskManager.TryScheduleIn(timePart, () =>
                 ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, message, Islocal: false), out _, out string error))
@@ -41,8 +42,10 @@ namespace Remind.Core.Commands
                 ChatUtils.AddGlobalNotification(error);
                 return;
             };
-            ChatUtils.AddGlobalNotification($"[{CMD}] Reminder in {timePart}: \"{message}\"");
-            ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, $"in {timePart} with '{message}'", Islocal: false);
+
+            if (RemindPlugin.BroadcastCreation?.Value == true)
+                ChatUtils.SendMessageAsync(RemindPlugin.ModName, $"@{username} created in {timePart} with '{message}'", isLocal);
+
         }
     }
 }

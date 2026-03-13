@@ -93,7 +93,6 @@ namespace Remind.Core
             {
                 task = null;
                 error = $"Invalid time: '{fireAt}'. Use HH:mm, HH:mm:ss, or yyyy-MM-dd HH:mm.";
-                ChatUtils.AddGlobalNotification(error);
                 return false;
             }
             DateTime utc = dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
@@ -101,7 +100,6 @@ namespace Remind.Core
             {
                 task = null;
                 error = $"Time '{fireAt}' is in the past.";
-                ChatUtils.AddGlobalNotification(error);
                 return false;
             }
             task = ScheduleAt(utc, action);

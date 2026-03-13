@@ -45,11 +45,15 @@ namespace Remind.Core.Commands
             bool isLocal = false;
             DateTime utc = time.Kind == DateTimeKind.Utc ? time : time.ToUniversalTime();
 
+            if (!RemindPlugin.ScheduledTaskManager.TryScheduleAt(timePart,
+                () => ChatUtils.SendMessageAsync(RemindPlugin.ModName, $"@{username} '{message}'", isLocal), out ScheduledTask? task, out string error))
+            {
+                ChatUtils.AddGlobalNotification(error);
+                return;
+            }
+
             if (RemindPlugin.BroadcastCreation?.Value == true)
                 ChatUtils.SendMessageAsync(RemindPlugin.ModName, $"@{username} created at {utc:HH:mm}UTC with '{message}'", isLocal);
-                        
-            RemindPlugin.ScheduledTaskManager.TryScheduleAt(timePart,
-                () => ChatUtils.SendMessageAsync(RemindPlugin.ModName, $"@{username} '{message}'", isLocal), out ScheduledTask? task, out string error);
 
         }
     }

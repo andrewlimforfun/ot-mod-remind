@@ -34,14 +34,18 @@ namespace Remind.Core.Commands
 
             string timePart = args[0];
             string username = PlayerUtils.GetUserName();
-            if (!RemindPlugin.ScheduledTaskManager.TryScheduleIn(args[0], () =>
-                ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, message, Islocal: true), out _, out string error))
+            bool isLocal = true;
+            
+            if (!RemindPlugin.ScheduledTaskManager.TryScheduleIn(timePart, () =>
+                ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, message, Islocal: false), out _, out string error))
             {
                 ChatUtils.AddGlobalNotification(error);
                 return;
-            }
-            ChatUtils.AddGlobalNotification($"[{CMD}] Reminder in {timePart}: \"{message}\"");
-            ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, $"in {timePart} with '{message}'", Islocal: true);
+            };
+
+            if (RemindPlugin.BroadcastCreation?.Value == true)
+                ChatUtils.SendMessageAsync(RemindPlugin.ModName, $"@{username} created in {timePart} with '{message}'", isLocal);
+
         }
     }
 }
