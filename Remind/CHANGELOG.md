@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [0.0.4] - 2026-03-14
 
+### Added
+- `/remindbroadcastcreation` `/rbc` to set if initial creation broadcast needs to happen
+
 ### Changed
 - Jaide ping compliant
-- Fix remind at
+- Fix remind at timezone
+
 
 ## [0.0.3] - 2026-03-13
 
