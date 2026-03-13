@@ -1,3 +1,5 @@
+using System;
+using System.Xml;
 using Remind;
 using Remind.Core.Util;
 
@@ -34,14 +36,20 @@ namespace Remind.Core.Commands
             string timePart = args[0];
             string username = PlayerUtils.GetUserName();
 
-            if (!RemindPlugin.ScheduledTaskManager.TryScheduleAt(timePart, () =>
-                ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, message, Islocal: false), out _, out string error))
+            if (!DateTime.TryParse(timePart, out DateTime time))
             {
-                ChatUtils.AddGlobalNotification(error);
+                ChatUtils.AddGlobalNotification("Invalid time format. Please use HH:mm.");
                 return;
             }
+
             ChatUtils.AddGlobalNotification($"[{CMD}] Reminder at {timePart}: \"{message}\"");
-            ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, $"at {timePart} with '{message}'", Islocal: false);
+
+            TimeSpan delay = time - DateTime.Now;
+            string delayStr = XmlConvert.ToString(delay).Replace("PT", "").Replace("H", "h ").Replace("M", "m ").Replace("S", "s").Trim();
+            ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, $"in {delayStr} with '{message}'", Islocal: false);
+            RemindPlugin.ScheduledTaskManager.ScheduleAt(time, 
+                () => ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, message, Islocal: false));
+            
         }
     }
 }
