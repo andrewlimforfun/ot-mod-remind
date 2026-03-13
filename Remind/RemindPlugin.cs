@@ -24,6 +24,7 @@ namespace Remind
         public const int DefaultGlobalChatMessageLimit = 50;
         public const int DefaultLocalChatMessageLimit = 25;
         public static ConfigEntry<bool>? EnableFeature { get; private set; }
+        public static ConfigEntry<bool>? BroadcastCreation { get; private set; }
         public static ConfigEntry<bool>? ShowCommand { get; private set; }
         public static ChatCommandManager? CommandManager { get; private set; }
         public static ScheduledTaskManager? ScheduledTaskManager { get; private set; }
@@ -67,6 +68,7 @@ namespace Remind
             // Initialize config entries
             EnableFeature = Config.Bind("General", "EnableFeature", true, "Enable or disable the mod feature.");
             ShowCommand = Config.Bind("General", "ShowCommand", false, "Show the command in chat when used.");
+            BroadcastCreation = Config.Bind("General", "BroadcastCreation", true, "Broadcast the creation of reminders in chat.");
         }
 
         /// <summary> Called every frame by Unity. We use it to execute actions on the main thread that were scheduled from background threads (e.g. WebSocket message handlers).</summary>

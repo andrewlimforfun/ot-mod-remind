@@ -44,13 +44,17 @@ namespace Remind.Core.Commands
 
             ChatUtils.AddGlobalNotification($"[{CMD}] Reminder at {timePart}: \"{message}\"");
 
+            bool isLocal = false;
             TimeSpan delay = time - DateTime.Now;
             TimeSpan truncatedDelay = new TimeSpan(delay.Hours, delay.Minutes, delay.Seconds);
             string delayStr = XmlConvert.ToString(truncatedDelay).Replace("PT", "").Replace("H", "h ").Replace("M", "m ").Replace("S", "s").Trim();
-            ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, $"in {delayStr} with '{message}'", Islocal: false);
-            RemindPlugin.ScheduledTaskManager.ScheduleAt(time, 
-                () => ChatUtils.SendMessageAsync(RemindPlugin.ModName + username, message, Islocal: false));
-            
+            if (RemindPlugin.BroadcastCreation?.Value == true)
+            {
+                ChatUtils.SendMessageAsync(RemindPlugin.ModName, $"created for @{username} in {delayStr} with '{message}'", isLocal);
+            }
+            RemindPlugin.ScheduledTaskManager.ScheduleAt(time,
+                () => ChatUtils.SendMessageAsync(RemindPlugin.ModName, $"@{username} '{message}'", isLocal));
+
         }
     }
 }
