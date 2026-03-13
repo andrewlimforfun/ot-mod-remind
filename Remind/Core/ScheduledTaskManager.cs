@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using BepInEx.Logging;
+using Remind.Core.Util;
 
 namespace Remind.Core
 {
@@ -74,7 +75,7 @@ namespace Remind.Core
         }
 
         /// <summary>Schedule <paramref name="action"/> to run at a specific UTC instant.</summary>
-        public ScheduledTask ScheduleAt(DateTime fireAt, Action action)
+        private ScheduledTask ScheduleAt(DateTime fireAt, Action action)
         {
             var task = new ScheduledTask(fireAt, action);
             _tasks.Add(task);
@@ -92,6 +93,7 @@ namespace Remind.Core
             {
                 task = null;
                 error = $"Invalid time: '{fireAt}'. Use HH:mm, HH:mm:ss, or yyyy-MM-dd HH:mm.";
+                ChatUtils.AddGlobalNotification(error);
                 return false;
             }
             DateTime utc = dt.Kind == DateTimeKind.Utc ? dt : dt.ToUniversalTime();
@@ -99,6 +101,7 @@ namespace Remind.Core
             {
                 task = null;
                 error = $"Time '{fireAt}' is in the past.";
+                ChatUtils.AddGlobalNotification(error);
                 return false;
             }
             task = ScheduleAt(utc, action);
